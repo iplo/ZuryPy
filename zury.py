@@ -20,7 +20,36 @@ class AppWindow():
 		self.root.title(self.title)
 		self.root.mainloop()
 
-def Compiler(name,version,directory,appfile, iconfile, keepassets):
+class Framework():
+	def __init__(self):
+		if __name__ == 'main':
+			print("Loading Frameworks")
+	class BrowserApplication():
+		def __init__(self):
+			import webkitui
+			self.window = webkitui.Window()
+	class TextApplication():
+		def __init__(self):
+			if self.defaults == True:
+				self.window = AppWindow()
+				self.window.fixedSize(400,400)
+				self.txt = self.makeBase(self.window, 400, 400)
+				self.txt.pack(self.window.root)
+		def makeBase(self, window, width, height):
+			root = window.root
+			txt = Text(root, width=400, height=400)
+			txt.delete(0.0, END)
+			return txt
+		def makeMenu(self, window, new, openf, save, saveas):
+			filemenu = Menu(window.menu)
+			filemenu.add_command(label="New", command=new)
+			filemenu.add_command(label="Open", command=openf)
+			filemenu.add_command(label="Save", command=save)
+			filemenu.add_command(label="Save As", command=saveas)
+			window.menu.add_cascade(label="File", menu=filemenu)
+			return window
+
+def Compiler(name,version,directory,appfile, iconfile, keepassets, extrafiles):
 	print("Writing Files...")
 	f = open(directory+"/build.py", "w")
 	f.write("'''\nUsage IN TERMINAL .. :\n\tpython build.py py2app\n'''\n\nfrom setuptools import setup\n\nAPP = [\"zuryapp.py\"]\nDATA_FILES = [('', ['images']), ('', ['Audio'])]\nOPTIONS = {\n\t'iconfile': \""+iconfile+"\"\n}\n\nsetup(\n\tname = \""+name+"\",\n\tversion = \""+version+"\",\n\tapp = APP,\n\tdata_files = DATA_FILES,\n\toptions = {'py2app': OPTIONS},\n\t  setup_requires = ['py2app']\n)")
@@ -44,6 +73,15 @@ def Compiler(name,version,directory,appfile, iconfile, keepassets):
 	os.system("python build.py py2app")
 	print("Moving Zury Over...")
 	os.system("cp zury.py dist/"+name+".app/Contents/Resources")
+	os.system("cp webkitui.py dist/"+name+".app/Contents/Resources")
+	os.system("cp qt.py dist/"+name+".app/Contents/Resources")
+	os.system("cp cocoa.py dist/"+name+".app/Contents/Resources")
+	os.system("cp gtk.py dist/"+name+".app/Contents/Resources")
+	os.system("cp win32.py dist/"+name+".app/Contents/Resources")
+	os.system("cp __init__.py dist/"+name+".app/Contents/Resources")
+	os.system("cp main.py dist/"+name+".app/Contents/Resources")
+	for f in extrafiles:
+		os.system("cp "+f+" dist/"+name+".app/Contents/Resources")
 	print("Moving App Back Directory...")
 	os.system("mv dist/"+name+".app ./")
 	print("Deleting Unneccesary Folders...")
